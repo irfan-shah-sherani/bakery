@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma"; 
+import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import path from "path";
 import fs from "fs/promises";
@@ -13,12 +13,16 @@ async function syncDbToJson() {
   const latestDbItems = await prisma.menu.findMany({
     orderBy: { id: "asc" },
   });
-  
+
   // Ensure directory exists dynamically just in case
   await fs.mkdir(path.dirname(jsonFilePath), { recursive: true });
-  
+
   // Overwrite the local json file with fresh data
-  await fs.writeFile(jsonFilePath, JSON.stringify(latestDbItems, null, 2), "utf-8");
+  await fs.writeFile(
+    jsonFilePath,
+    JSON.stringify(latestDbItems, null, 2),
+    "utf-8",
+  );
 }
 
 // --- 1. USER-FACING FETCH (Strictly reads from ./data/menu.json) ---
@@ -41,7 +45,7 @@ export async function addBakeryItem(formData: FormData) {
     const category = formData.get("category") as string;
     const file = formData.get("img") as File | null;
 
-    let relativeImagePath = "/img/placeholder.jpg"; 
+    let relativeImagePath = "/img/placeholder.jpg";
 
     if (file && file.size > 0 && file.name !== "undefined") {
       const bytes = await file.arrayBuffer();
@@ -53,7 +57,7 @@ export async function addBakeryItem(formData: FormData) {
 
       const publicUploadsPath = path.join(process.cwd(), "public", "uploads");
       await fs.mkdir(publicUploadsPath, { recursive: true });
-      
+
       const filePath = path.join(publicUploadsPath, filename);
       await fs.writeFile(filePath, buffer);
 
@@ -61,14 +65,14 @@ export async function addBakeryItem(formData: FormData) {
     }
 
     // 1. Save to Database
-    const item = await prisma.menu.create({ 
-      data: { name, price, category, img: relativeImagePath } 
+    const item = await prisma.menu.create({
+      data: { name, price, category, img: relativeImagePath },
     });
-    
+
     // 2. Instantly update ./data/menu.json
     await syncDbToJson();
-    
-    revalidatePath("/menu"); 
+
+    revalidatePath("/menu");
     return { success: true, data: item };
   } catch (error) {
     console.error("Error adding item:", error);
@@ -76,7 +80,10 @@ export async function addBakeryItem(formData: FormData) {
   }
 }
 
-export async function updateBakeryItem(id: number, data: { name: string; price: number; category: string; img: string }) {
+export async function updateBakeryItem(
+  id: number,
+  data: { name: string; price: number; category: string; img: string },
+) {
   try {
     const { id: _, ...cleanUpdateData } = data as any;
 
@@ -89,7 +96,7 @@ export async function updateBakeryItem(id: number, data: { name: string; price: 
     // 2. Instantly update ./data/menu.json
     await syncDbToJson();
 
-    revalidatePath("/menu"); 
+    revalidatePath("/menu");
     return { success: true, data: item };
   } catch (error) {
     console.error("Error updating item:", error);
@@ -99,15 +106,40 @@ export async function updateBakeryItem(id: number, data: { name: string; price: 
 
 export async function deleteBakeryItem(id: number) {
   try {
-    // 1. Delete from Database
+    // 1. Find the item first
+    const item = await prisma.menu.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!item) {
+      return { success: false, error: "Item not found" };
+    }
+
+    // 2. Delete image from /public/uploads
+    if (
+      item.img &&
+      item.img.startsWith("/uploads/") &&
+      item.img !== "/img/placeholder.jpg"
+    ) {
+      const imagePath = path.join(process.cwd(), "public", item.img);
+
+      try {
+        await fs.unlink(imagePath);
+      } catch (fileError) {
+        console.error("Error deleting image file:", fileError);
+      }
+    }
+
+    // 3. Delete item from Database
     await prisma.menu.delete({
       where: { id: Number(id) },
     });
     
-    // 2. Instantly update ./data/menu.json
+    // 4. Sync DB to JSON
     await syncDbToJson();
 
-    revalidatePath("/menu"); 
+    revalidatePath("/menu");
+
     return { success: true };
   } catch (error) {
     console.error("Error deleting item:", error);
