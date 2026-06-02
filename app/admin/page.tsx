@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { addBakeryItem, updateBakeryItem, deleteBakeryItem } from "@/actions/menu"; 
-import { Plus, Trash2, Layers, AlertCircle, LogOut } from "lucide-react";
+import { Plus, Trash2, AlertCircle, LogOut } from "lucide-react";
 import Link from "next/link";
 
 const categories = ["bread", "pastries", "cakes", "cookies", "donuts", "cupcakes", "muffins", "tarts"];
@@ -19,7 +19,6 @@ export default function AdminMenuPage() {
   });
 
   useEffect(() => {
-    // Get admin email from API
     fetch("/api/admin-config")
       .then((res) => res.json())
       .then((data) => {
@@ -66,15 +65,26 @@ export default function AdminMenuPage() {
     }
   };
 
-  const handleUpdatePrice = async (id: number, newPrice: string) => {
-    const priceNum = parseFloat(newPrice);
-    if (isNaN(priceNum)) return;
-
+  // Enhanced Update handler that handles both name and price fields dynamically
+  const handleUpdateField = async (id: number, field: "name" | "price", newValue: string) => {
     const targetItem = items.find((i) => i.id === id);
-    const result = await updateBakeryItem(id, { ...targetItem, price: priceNum });
+    if (!targetItem) return;
+
+    let updatedValue: string | number = newValue;
+    
+    if (field === "price") {
+      const priceNum = parseFloat(newValue);
+      if (isNaN(priceNum)) return;
+      if (targetItem.price === priceNum) return; // Prevent useless API hits
+      updatedValue = priceNum;
+    } else {
+      if (!newValue.trim() || targetItem.name === newValue) return;
+    }
+
+    const result = await updateBakeryItem(id, { ...targetItem, [field]: updatedValue });
     
     if (result.success) {
-      setItems(items.map((i) => (i.id === id ? { ...i, price: priceNum } : i)));
+      setItems(items.map((i) => (i.id === id ? { ...i, [field]: updatedValue } : i)));
     }
   };
 
@@ -88,21 +98,20 @@ export default function AdminMenuPage() {
 
   if (loading || status === "loading" || adminEmail === undefined) {
     return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center font-bold tracking-widest">
+      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center font-bold text-center p-4 tracking-widest text-sm md:text-base">
         LOADING STORE INVENTORY...
       </div>
     );
   }
 
-  // Check if user is not logged in
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-6">
-        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-10 max-w-md text-center shadow-xl">
+      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
+        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
           <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
-          <h1 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Access Denied</h1>
-          <p className="text-neutral-400 mb-6">You must be logged in to access the admin panel.</p>
-          <Link href="/login" className="inline-block bg-[#D99A5B] text-neutral-900 font-black py-3 px-8 rounded uppercase text-xs tracking-widest hover:bg-amber-500 transition-colors">
+          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Access Denied</h1>
+          <p className="text-sm text-neutral-400 mb-6">You must be logged in to access the admin panel.</p>
+          <Link href="/login" className="inline-block w-full sm:w-auto bg-[#D99A5B] text-neutral-900 font-black py-3 px-8 rounded uppercase text-xs tracking-widest hover:bg-amber-500 transition-colors">
             Login Now
           </Link>
         </div>
@@ -110,19 +119,18 @@ export default function AdminMenuPage() {
     );
   }
 
-  // Check if admin email is configured
   if (!adminEmail) {
     return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-6">
-        <div className="bg-neutral-900 border border-yellow-500/30 rounded-lg p-10 max-w-md text-center shadow-xl">
+      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
+        <div className="bg-neutral-900 border border-yellow-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
           <AlertCircle size={48} className="mx-auto text-yellow-400 mb-4" />
-          <h1 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Admin Not Configured</h1>
-          <p className="text-neutral-400 mb-6">The admin email has not been set up yet. Please add <code className="bg-neutral-800 px-2 py-1 rounded text-[#D99A5B]">NEXT_PUBLIC_ADMIN_EMAIL</code> to your .env file.</p>
-          <div className="bg-neutral-800 rounded p-4 text-left text-sm mb-6 border border-neutral-700">
-            <p className="text-neutral-300 mb-2">Example .env setup:</p>
-            <code className="text-[#D99A5B] font-mono text-xs">NEXT_PUBLIC_ADMIN_EMAIL=your-email@example.com</code>
+          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Admin Not Configured</h1>
+          <p className="text-sm text-neutral-400 mb-6">The admin email has not been set up yet. Please add <code className="bg-neutral-800 px-2 py-1 rounded text-[#D99A5B]">NEXT_PUBLIC_ADMIN_EMAIL</code> to your .env file.</p>
+          <div className="bg-neutral-800 rounded p-4 text-left text-sm mb-6 border border-neutral-700 overflow-x-auto">
+            <p className="text-neutral-300 mb-2 whitespace-nowrap">Example .env setup:</p>
+            <code className="text-[#D99A5B] font-mono text-xs whitespace-nowrap">NEXT_PUBLIC_ADMIN_EMAIL=your-email@example.com</code>
           </div>
-          <Link href="/" className="inline-block bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
+          <Link href="/" className="inline-block w-full sm:w-auto bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
             Back Home
           </Link>
         </div>
@@ -130,17 +138,16 @@ export default function AdminMenuPage() {
     );
   }
 
-  // Check if user's email matches admin email
   const userEmail = (session?.user as any)?.email;
   if (userEmail !== adminEmail) {
     return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-6">
-        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-10 max-w-md text-center shadow-xl">
+      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
+        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
           <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
-          <h1 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Unauthorized</h1>
-          <p className="text-neutral-400 mb-2">Your email: <span className="text-yellow-400 font-bold">{userEmail}</span></p>
-          <p className="text-neutral-400 mb-6">You are not authorized to access the admin panel.</p>
-          <Link href="/" className="inline-block bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
+          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Unauthorized</h1>
+          <p className="text-sm text-neutral-400 mb-2">Your email: <span className="text-yellow-400 font-bold break-all">{userEmail}</span></p>
+          <p className="text-sm text-neutral-400 mb-6">You are not authorized to access the admin panel.</p>
+          <Link href="/" className="inline-block w-full sm:w-auto bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
             Back Home
           </Link>
         </div>
@@ -149,30 +156,35 @@ export default function AdminMenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1E1B18] text-neutral-100 p-6 md:p-24 pt-28">
+    <div className="min-h-screen bg-[#1E1B18] text-neutral-100 p-4 sm:p-8 md:p-12 lg:p-24 pt-24 md:pt-28">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-6 mb-10">
+        
+        {/* Responsive Header Wrapper */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-6 mb-10">
           <div>
-            <h1 className="text-3xl font-black text-[#D99A5B] tracking-tight uppercase">Bakery Inventory Panel</h1>
-            <p className="text-sm text-neutral-400 mt-1">Manage live items, prices, and categories on your store menu.</p>
+            <h1 className="text-2xl md:text-3xl font-black text-[#D99A5B] tracking-tight uppercase">Bakery Inventory Panel</h1>
+            <p className="text-xs md:text-sm text-neutral-400 mt-1">Manage live items, prices, and categories on your store menu.</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="bg-neutral-800 px-4 py-2 rounded text-xs font-mono text-neutral-400 border border-neutral-750">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 self-start sm:self-auto">
+            <div className="bg-neutral-900 px-3 py-2 rounded text-xs font-mono text-neutral-400 border border-neutral-800">
               Live Items: {items.length}
             </div>
-            <div className="text-xs text-neutral-500 bg-neutral-800 px-3 py-2 rounded border border-neutral-700">
+            <div className="text-xs text-neutral-400 bg-neutral-900 px-3 py-2 rounded border border-neutral-800 max-w-[180px] sm:max-w-none truncate">
               {userEmail}
             </div>
-            <Link href="/signout" className="p-2 text-neutral-400 hover:text-red-400 rounded hover:bg-neutral-800 transition-colors" title="Logout">
+            <Link href="/signout" className="p-2 text-neutral-400 hover:text-red-400 rounded hover:bg-neutral-900 transition-colors" title="Logout">
               <LogOut size={18} />
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Form and Catalog Main Split Container */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+          
+          {/* Create Form Column */}
           <div className="lg:col-span-1">
-            <form onSubmit={handleCreate} className="bg-neutral-900 p-6 rounded-lg border border-neutral-800 shadow-xl sticky top-28">
-              <h2 className="text-lg font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2">
+            <form onSubmit={handleCreate} className="bg-neutral-900 p-5 md:p-6 rounded-lg border border-neutral-800 shadow-xl lg:sticky lg:top-28">
+              <h2 className="text-base md:text-lg font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2">
                 <Plus size={18} className="text-[#D99A5B]" /> Add New Pastry
               </h2>
               
@@ -193,7 +205,7 @@ export default function AdminMenuPage() {
                 </div>
                 <div>
                   <label className="text-xs uppercase tracking-wider text-neutral-400 font-bold block mb-2">Pastry Image File</label>
-                  <input id="image-upload-input" type="file" accept="image/*" onChange={e => setForm({...form, img: e.target.files?.[0] || null})} className="w-full p-3 bg-neutral-800 rounded border border-neutral-700 text-neutral-400 text-sm focus:outline-none focus:border-[#D99A5B] file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-neutral-700 file:text-white hover:file:bg-neutral-600 cursor-pointer" />
+                  <input id="image-upload-input" type="file" accept="image/*" onChange={e => setForm({...form, img: e.target.files?.[0] || null})} className="w-full p-2.5 bg-neutral-800 rounded border border-neutral-700 text-neutral-400 text-sm focus:outline-none focus:border-[#D99A5B] file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-neutral-700 file:text-white hover:file:bg-neutral-600 cursor-pointer" />
                 </div>
                 <button type="submit" className="w-full bg-[#D99A5B] text-neutral-900 font-black py-3 rounded uppercase text-xs tracking-widest mt-2 hover:bg-amber-500 transition-colors">
                   Add Item to Menu
@@ -202,39 +214,78 @@ export default function AdminMenuPage() {
             </form>
           </div>
 
+          {/* Catalog Records Column */}
           <div className="lg:col-span-2">
             <div className="bg-neutral-900 rounded-lg border border-neutral-800 shadow-xl overflow-hidden">
-              <div className="p-5 border-b border-neutral-800 bg-neutral-950 flex items-center justify-between">
+              <div className="p-4 md:p-5 border-b border-neutral-800 bg-neutral-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <span className="text-xs uppercase font-bold tracking-widest text-neutral-400">Current Pastry Catalog</span>
-                <span className="text-[10px] text-[#D99A5B] italic">Click price input box & step away to update instantly</span>
+                <span className="text-[10px] text-[#D99A5B] italic">Click text blocks or pricing inputs to edit live layout</span>
               </div>
 
               <div className="divide-y divide-neutral-800">
                 {items.map((item) => (
-                  <div key={item.id} className="p-4 flex items-center justify-between gap-4 hover:bg-neutral-850 transition-colors">
+                  <div key={item.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-neutral-850/50 transition-colors">
+                    
+                    {/* Item Details */}
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <img src={item.img} alt={item.name} className="w-12 h-12 object-cover rounded border border-neutral-700 bg-neutral-800" onError={(e) => { (e.target as HTMLImageElement).src = "/img/placeholder.jpg"; }} />
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-white text-base truncate">{item.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] font-mono font-bold tracking-wider uppercase bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded flex items-center gap-1 border border-neutral-700">{item.category}</span>
+                      <img 
+                        src={item.img} 
+                        alt={item.name} 
+                        className="w-12 h-12 md:w-14 md:h-14 object-cover rounded border border-neutral-700 bg-neutral-800 shrink-0" 
+                        onError={(e) => { (e.target as HTMLImageElement).src = "/img/placeholder.jpg"; }} 
+                      />
+                      <div className="min-w-0 w-full">
+                        {/* INPUT FOR LIVE NAME EDITING */}
+                        <input 
+                          type="text" 
+                          defaultValue={item.name} 
+                          onBlur={(e) => handleUpdateField(item.id, "name", e.target.value)}
+                          className="bg-transparent font-bold text-white text-sm md:text-base border-b border-transparent hover:border-neutral-700 focus:border-[#D99A5B] focus:outline-none w-full py-0.5 truncate transition-all"
+                          title="Click to edit item name"
+                        />
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                          <span className="text-[9px] font-mono font-bold tracking-wider uppercase bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded border border-neutral-700">
+                            {item.category}
+                          </span>
                           <span className="text-xs text-neutral-500">ID: #{item.id}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
+
+                    {/* Pricing Tools & Actions */}
+                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 border-t border-neutral-800/60 sm:border-none pt-3 sm:pt-0">
                       <div className="flex items-center gap-2">
                         <span className="text-neutral-500 font-bold text-sm">$</span>
-                        <input type="number" step="0.01" defaultValue={item.price} onBlur={(e) => handleUpdatePrice(item.id, e.target.value)} className="w-20 p-2 bg-neutral-800 text-center text-white rounded font-bold text-sm border border-neutral-700 focus:border-[#D99A5B] focus:outline-none" />
+                        {/* INPUT FOR LIVE PRICE EDITING */}
+                        <input 
+                          type="number" 
+                          step="0.01" 
+                          defaultValue={item.price} 
+                          onBlur={(e) => handleUpdateField(item.id, "price", e.target.value)} 
+                          className="w-20 p-2 bg-neutral-800 text-center text-white rounded font-bold text-sm border border-neutral-700 focus:border-[#D99A5B] focus:outline-none" 
+                        />
                       </div>
-                      <button onClick={() => handleDelete(item.id)} className="p-2 text-neutral-500 hover:text-red-400 rounded hover:bg-neutral-800"><Trash2 size={18} /></button>
+                      <button 
+                        onClick={() => handleDelete(item.id)} 
+                        className="p-2 text-neutral-500 hover:text-red-400 rounded hover:bg-neutral-800 transition-colors"
+                        aria-label="Delete item"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
+
                   </div>
                 ))}
-                {items.length === 0 && <div className="p-12 text-center text-neutral-500 text-sm">Your bakery database is completely empty.</div>}
+                {items.length === 0 && (
+                  <div className="p-12 text-center text-neutral-500 text-sm">
+                    Your bakery database is completely empty.
+                  </div>
+                )}
               </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </div>

@@ -6,9 +6,9 @@ import OverlayTop from "./overlaytop";
 
 export default function Footer() {
   return (
-    <footer className="relative w-full pt-32 pb-10 overflow-hidden">
+    <footer className="relative w-full pt-20 md:pt-32 pb-10 overflow-hidden">
       {/* Background Image & Overlay */}
-      <div className="absolute h-[102vh] inset-0 z-0">
+      <div className="absolute inset-0 z-0">
         <Image
           src="/img/bg-2.jpg" 
           alt="Coffee Beans Background"
@@ -17,50 +17,52 @@ export default function Footer() {
         />
         <div className="absolute inset-0 bg-black/80" />
       </div>
-    <div className=" absolute bg-[#d2691e] opacity-14   z-2 inset-0" />
+      <div className="absolute bg-[#d2691e] opacity-10 z-[2] inset-0" />
+      
       {/* Torn Paper Top Edge */}
       <OverlayTop />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-white mb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        {/* Main Grid Content (Now adjusted to 3 columns on desktop since newsletter is gone) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12 text-white mb-16 md:mb-20">
           
           {/* Get In Touch */}
-          <div className="space-y-6">
-            <h4 className="text-xl font-bold uppercase tracking-widest">Get In Touch</h4>
-            <div className="space-y-4 text-gray-300">
+          <div className="space-y-4 md:space-y-6">
+            <h4 className="text-lg md:text-xl font-bold uppercase tracking-widest text-[#D99A5B]">Get In Touch</h4>
+            <div className="space-y-3 text-gray-300 text-sm md:text-base">
               <p className="flex items-start gap-3">
-                <MapPin className="text-[#D99A5B] shrink-0" size={20} />
+                <MapPin className="text-[#D99A5B] shrink-0 mt-0.5" size={18} />
                 123 Street, New York, USA
               </p>
               <p className="flex items-center gap-3">
-                <Phone className="text-[#D99A5B] shrink-0" size={20} />
+                <Phone className="text-[#D99A5B] shrink-0" size={18} />
                 +012 345 67890
               </p>
               <p className="flex items-center gap-3">
-                <Mail className="text-[#D99A5B] shrink-0" size={20} />
+                <Mail className="text-[#D99A5B] shrink-0" size={18} />
                 info@example.com
               </p>
             </div>
           </div>
 
           {/* Follow Us */}
-          <div className="space-y-6">
-            <h4 className="text-xl font-bold uppercase tracking-widest">Follow Us</h4>
+          <div className="space-y-4 md:space-y-6">
+            <h4 className="text-lg md:text-xl font-bold uppercase tracking-widest text-[#D99A5B]">Follow Us</h4>
             <p className="text-gray-300 text-sm leading-relaxed">
               Amet elitr vero magna sed ipsum sit kasd sea elitr lorem rebum
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[FaTwitter, FaFacebook, FaLinkedin, FaInstagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 border border-white flex items-center justify-center hover:bg-[#D99A5B] hover:border-[#D99A5B] transition-all">
-                  <Icon size={18} />
+                <a key={i} href="#" className="w-9 h-9 border border-white/50 flex items-center justify-center hover:bg-[#D99A5B] hover:border-[#D99A5B] transition-all rounded-sm">
+                  <Icon size={16} />
                 </a>
               ))}
             </div>
           </div>
 
           {/* Open Hours */}
-          <div className="space-y-6">
-            <h4 className="text-xl font-bold uppercase tracking-widest">Open Hours</h4>
+          <div className="space-y-4 md:space-y-6">
+            <h4 className="text-lg md:text-xl font-bold uppercase tracking-widest text-[#D99A5B]">Open Hours</h4>
             <div className="space-y-4 text-gray-300 text-sm">
               <div>
                 <p className="uppercase font-bold text-white mb-1">Monday - Friday</p>
@@ -73,39 +75,22 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Newsletter */}
-          <div className="space-y-6">
-            <h4 className="text-xl font-bold uppercase tracking-widest">Newsletter</h4>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Amet elitr vero magna sed ipsum sit kasd sea elitr lorem rebum
-            </p>
-            {/* <div className="flex bg-white p-1">
-              <input 
-                type="email" 
-                placeholder="Your Email" 
-                className="w-full px-3 py-2 text-gray-800 outline-none"
-              />
-              <button className="bg-[#D99A5B] text-[#2D241E] font-bold px-4 py-2 hover:bg-[#c4854a] transition-colors whitespace-nowrap">
-                Sign Up
-              </button>
-            </div> */}
-          </div>
-        </div>
+        </div> {/* <-- Properly closing the grid here */}
 
         {/* Bottom Copyright */}
-        <div className="border-t border-white/10 pt-10 text-center text-sm text-gray-400">
+        <div className="border-t border-white/10 pt-8 text-center text-xs md:text-sm text-gray-400">
           <p>
             Copyright © <span className="text-[#D99A5B]">Your Site Name</span>. All Rights Reserved.
           </p>
-          <p className="mt-2">
+          <p className="mt-1">
             Designed by <span className="text-[#D99A5B]">HTML Codex</span>
           </p>
         </div>
-      </div>
+      </div> {/* <-- Properly closing the max-w-7xl wrapper here */}
       
       {/* Back to Top Arrow */}
-      <button className="absolute bottom-10 right-10 w-10 h-10 bg-[#D99A5B] flex items-center justify-center text-[#2D241E] hover:bg-white transition-all shadow-lg">
-        <span className="text-xl font-bold">^</span>
+      <button className="absolute bottom-5 right-5 md:bottom-10 md:right-10 w-9 h-9 md:w-10 md:h-10 bg-[#D99A5B] flex items-center justify-center text-[#2D241E] hover:bg-white transition-all shadow-lg rounded-sm">
+        <span className="text-lg md:text-xl font-bold">^</span>
       </button>
     </footer>
   );
