@@ -27,12 +27,25 @@ export default function CartDrawer({ isOpen, onClose, cart, setCart }: Props) {
   }, [isOpen]);
 
   const updateQty = (id: number, delta: number) => {
-    setCart(prev => prev.map(item =>
-      item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-    ));
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQty = item.qty + delta;
+        const totalItems = prev.reduce((acc, i) => acc + (i.id === id ? newQty : i.qty), 0);
+        
+        // Maximum 20 items total
+        if (totalItems > 20) {
+          alert("❌ Maximum 20 items per order");
+          return item;
+        }
+        
+        return { ...item, qty: Math.max(1, newQty) };
+      }
+      return item;
+    }));
   };
 
   const totalPrice = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
 
   return (
     <>
@@ -52,7 +65,9 @@ export default function CartDrawer({ isOpen, onClose, cart, setCart }: Props) {
         <div className="p-8 flex justify-between items-center border-b border-[#D99A5B]/10">
           <div>
             <h2 className="text-2xl font-black text-[#2D241E] uppercase tracking-tighter">Your Bakery Box</h2>
-            <p className="text-[#D99A5B] text-xs font-bold uppercase tracking-[0.2em] mt-1">Freshly Picked</p>
+            <p className="text-[#D99A5B] text-xs font-bold uppercase tracking-[0.2em] mt-1">
+              {totalItems > 0 ? `${totalItems} item${totalItems !== 1 ? 's' : ''}` : 'Freshly Picked'}
+            </p>
           </div>
           <button onClick={onClose} className="p-2 text-[#2D241E] hover:rotate-90 transition-transform duration-300">
             <X size={28} />
@@ -124,8 +139,7 @@ export default function CartDrawer({ isOpen, onClose, cart, setCart }: Props) {
             <span className="text-[#2D241E] font-black text-sm uppercase tracking-widest">Total Amount</span>
             <span className="text-3xl font-black text-[#D99A5B]">${totalPrice.toFixed(2)}</span>
           </div>
-
-          <Link href={`/checkout?cart=${encodeURIComponent(JSON.stringify(cart))}`}>
+          <Link href={`/checkout?cart=${encodeURIComponent(JSON.stringify(cart))}`} onClick={onClose}>
             <button className="w-full bg-[#2D241E] text-white font-bold py-5 rounded-xl uppercase tracking-[0.2em] text-xs hover:bg-[#D99A5B] transition-all duration-500 shadow-xl active:scale-[0.98]">
               Complete My Order
             </button>

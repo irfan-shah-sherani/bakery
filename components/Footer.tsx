@@ -79,7 +79,7 @@ export default function Footer() {
             <p className="text-gray-300 text-sm leading-relaxed">
               Amet elitr vero magna sed ipsum sit kasd sea elitr lorem rebum
             </p>
-            <div className="flex bg-white p-1">
+            {/* <div className="flex bg-white p-1">
               <input 
                 type="email" 
                 placeholder="Your Email" 
@@ -88,7 +88,7 @@ export default function Footer() {
               <button className="bg-[#D99A5B] text-[#2D241E] font-bold px-4 py-2 hover:bg-[#c4854a] transition-colors whitespace-nowrap">
                 Sign Up
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -1,18 +1,16 @@
-// // app/menu/page.tsx
-// import EnhancedBakeryMenu from "@/components/Menu";
-// import { getJsonBakeryMenu } from "@/actions/menu";
+// app/menu/page.tsx
+import EnhancedBakeryMenu from "@/components/Menu";
+import { getJsonBakeryMenu } from "@/actions/menu";
 
-// // Forces real-time file reading on layout reload
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
-// export default async function MenuPage() {
-//   // Reads strictly from ./data/menu.json
-//   const items = await getJsonBakeryMenu();
-//   console.log("✅ Menu page loaded. Items from menu.json:", items);
+export default async function MenuPage() {
 
-//   return (
-//     <div className="pt-16">
-//       <EnhancedBakeryMenu initialItems={items} />
-//     </div>
-//   );
-// }
+  const items = await getJsonBakeryMenu();
+
+  return (
+    <div className="pt-16">
+      <EnhancedBakeryMenu initialItems={items} />
+    </div>
+  );
+}

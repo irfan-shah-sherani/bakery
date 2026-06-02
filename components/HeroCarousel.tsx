@@ -7,8 +7,8 @@ import OverlayBottom from "./overlaybottom";
 import Overlaytop from "./overlaytop";
 
 const slides = [
-  { id: 1, image: "/img/carousel-3.jpg", subtext: "We Have Been Serving", title: "COFFEE", since: "* SINCE 1950 *" },
-  { id: 2, image: "/img/carousel-4.jpg", subtext: "Freshly Baked Daily", title: "PASTRIES", since: "* TRADITIONAL RECIPES *" },
+  { id: 1, image: "/img/carousel-3.jpg", subtext: "We Have Been Serving", title: "bread", since: "* 100% NATURAL *" },
+  { id: 2, image: "/img/carousel-4.jpg", subtext: "Freshly Baked Daily", title: "cookies", since: "* TRADITIONAL RECIPES *" },
 ];
 
 export default function HeroCarousel() {
@@ -47,7 +47,7 @@ export default function HeroCarousel() {
 
   return (
     <section className="relative h-screen  w-full  overflow-hidden">
-      {/* Background Images */}
+
       <div className=" absolute bg-[#d2691e] opacity-14   z-2 inset-0" />
       <Overlaytop />
       <div className=" z-1">
@@ -61,7 +61,6 @@ export default function HeroCarousel() {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Navigation Arrows */}
       <button onClick={prevSlide} className="absolute left-4 top-1/2 z-30 -translate-y-1/2 rounded-full p-2 text-white/70 hover:bg-white/10 hover:text-white transition-all">
         <ChevronLeft size={48} strokeWidth={1} />
       </button>
@@ -69,7 +68,6 @@ export default function HeroCarousel() {
         <ChevronRight size={48} strokeWidth={1} />
       </button>
 
-      {/* Center Content */}
       <div ref={contentRef} className="relative z-20 flex h-full flex-col items-center justify-center text-center text-white px-4">
         <p className="mb-2 text-lg font-medium tracking-wide text-orange-400 uppercase">{slides[currentIndex].subtext}</p>
         <h1 className="mb-4 text-7xl font-black tracking-tighter md:text-9xl uppercase">{slides[currentIndex].title}</h1>

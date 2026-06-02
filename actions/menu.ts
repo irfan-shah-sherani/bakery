@@ -5,19 +5,19 @@ import { revalidatePath } from "next/cache";
 import path from "path";
 import fs from "fs/promises";
 
-// Path set specifically to ./data/menu.json in your root directory
+
 const jsonFilePath = path.join(process.cwd(), "data", "menu.json");
 
-// Helper function to sync DB data into the JSON file
+
 async function syncDbToJson() {
   const latestDbItems = await prisma.menu.findMany({
     orderBy: { id: "asc" },
   });
 
-  // Ensure directory exists dynamically just in case
+
   await fs.mkdir(path.dirname(jsonFilePath), { recursive: true });
 
-  // Overwrite the local json file with fresh data
+
   await fs.writeFile(
     jsonFilePath,
     JSON.stringify(latestDbItems, null, 2),
@@ -25,7 +25,7 @@ async function syncDbToJson() {
   );
 }
 
-// --- 1. USER-FACING FETCH (Strictly reads from ./data/menu.json) ---
+
 export async function getJsonBakeryMenu() {
   try {
     const fileData = await fs.readFile(jsonFilePath, "utf-8");
@@ -36,7 +36,6 @@ export async function getJsonBakeryMenu() {
   }
 }
 
-// --- 2. ADMIN ACTIONS (Saves to DB + Overwrites JSON File) ---
 
 export async function addBakeryItem(formData: FormData) {
   try {

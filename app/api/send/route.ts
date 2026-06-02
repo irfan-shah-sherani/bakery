@@ -79,12 +79,29 @@ const getEmailHtml = (type: string, payload: any) => {
 
     case 'contact':
       return `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px;">
-          <h2 style="color: #18181b; border-bottom: 1px solid #e4e4e7; padding-bottom: 10px;">New Contact Form Submission</h2>
-          <p><strong>From:</strong> ${payload.name} (${payload.email})</p>
-          <div style="background: #f4f4f5; padding: 16px; border-radius: 6px; white-space: pre-wrap; margin-top: 15px; color: #3f3f46;">
-            ${payload.message}
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px; background: #fafafa;">
+          <div style="background: #2D241E; color: white; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 22px; font-weight: bold;">📧 New Contact Form Submission</h2>
+            <p style="margin: 8px 0 0 0; color: #D99A5B; font-size: 14px;">Subject: <strong>${payload.subject || 'No subject'}</strong></p>
           </div>
+          
+          <div style="margin-bottom: 20px; padding: 15px; background: white; border: 1px solid #e4e4e7; border-radius: 6px;">
+            <h3 style="color: #18181b; font-size: 14px; margin-top: 0; margin-bottom: 12px; font-weight: bold;">Contact Information</h3>
+            <p style="margin: 0 0 8px 0; color: #3f3f46;"><strong>Name:</strong> ${payload.name || 'N/A'}</p>
+            <p style="margin: 0 0 8px 0; color: #3f3f46;"><strong>Email:</strong> <a href="mailto:${payload.email}" style="color: #D99A5B; text-decoration: none;">${payload.email || 'N/A'}</a></p>
+            <p style="margin: 0; color: #3f3f46;"><strong>Phone:</strong> <a href="tel:${payload.phone}" style="color: #D99A5B; text-decoration: none;">${payload.phone || 'N/A'}</a></p>
+          </div>
+
+          <div style="margin-top: 20px; padding: 15px; background: white; border: 1px solid #e4e4e7; border-radius: 6px;">
+            <h3 style="color: #18181b; font-size: 14px; margin-top: 0; margin-bottom: 12px; font-weight: bold;">Message</h3>
+            <div style="background: #f4f4f5; padding: 16px; border-radius: 6px; white-space: pre-wrap; color: #3f3f46; line-height: 1.6;">
+              ${payload.message || 'No message provided'}
+            </div>
+          </div>
+
+          <p style="color: #71717a; font-size: 12px; margin-top: 20px; text-align: center; border-top: 1px solid #e4e4e7; padding-top: 15px;">
+            This message was sent through the contact form at your Bakery website.
+          </p>
         </div>
       `;
 

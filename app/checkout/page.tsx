@@ -78,10 +78,75 @@ export default function CheckoutPage() {
     const tax = subtotal * 0.1;
     const total = subtotal + tax;
 
+    // Validation utilities
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validatePhone = (phone: string): boolean => {
+        const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+        return phoneRegex.test(phone.replace(/\s/g, ""));
+    };
+
+    const validateName = (name: string): boolean => {
+        return name.trim().length >= 2 && name.trim().length <= 100;
+    };
+
+    const validateAddress = (address: string): boolean => {
+        return address.trim().length >= 10 && address.trim().length <= 500;
+    };
+
     const handleConfirmOrder = async () => {
-        // Validate fields
-        if (!orderData.name || !orderData.email || !orderData.phone || !orderData.address) {
-            alert("Please fill in all fields");
+        // Validate name
+        if (!orderData.name) {
+            alert("❌ Please enter your full name");
+            return;
+        }
+        if (!validateName(orderData.name)) {
+            alert("❌ Name must be 2-100 characters");
+            return;
+        }
+
+        // Validate email
+        if (!orderData.email) {
+            alert("❌ Please enter your email");
+            return;
+        }
+        if (!validateEmail(orderData.email)) {
+            alert("❌ Please enter a valid email address");
+            return;
+        }
+
+        // Validate phone
+        if (!orderData.phone) {
+            alert("❌ Please enter your phone number");
+            return;
+        }
+        if (!validatePhone(orderData.phone)) {
+            alert("❌ Please enter a valid phone number (at least 10 digits)");
+            return;
+        }
+
+        // Validate address
+        if (!orderData.address) {
+            alert("❌ Please enter your delivery address");
+            return;
+        }
+        if (!validateAddress(orderData.address)) {
+            alert("❌ Address must be 10-500 characters");
+            return;
+        }
+
+        // Validate cart
+        if (cart.length === 0) {
+            alert("❌ Your cart is empty");
+            return;
+        }
+
+        const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
+        if (totalItems > 20) {
+            alert("❌ Maximum 20 items per order");
             return;
         }
 

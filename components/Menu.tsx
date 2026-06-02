@@ -57,7 +57,7 @@ export default function EnhancedBakeryMenu({ initialItems = [] }: { initialItems
   };
 
   return (
-    <section className="bg-[#FFFBFA] py-20 px-4 md:px-10 relative overflow-hidden">
+    <section className="bg-[#FFF8ED] py-20 px-4 md:px-10 relative overflow-hidden">
       <div className="flex flex-col items-center text-center mb-12">
         <div className="w-[1px] h-12 bg-[#D99A5B] mb-4" />
         <h2 className="text-4xl md:text-5xl font-black text-[#2D241E] mb-8 uppercase tracking-tighter">
@@ -114,12 +114,12 @@ export default function EnhancedBakeryMenu({ initialItems = [] }: { initialItems
                 </div>
 
                 <div className="text-center flex flex-col flex-grow">
-                  <h4 className="text-xl font-bold text-[#2D241E] mb-2 uppercase tracking-tight">{item.name}</h4>
-                  <p className="text-[#7A6D63] text-sm mb-6 line-clamp-2 italic">
-                    Masterfully crafted with premium ingredients for the perfect flavor.
-                  </p>
+                  <h4 className="text-xl font-bold text-[#2D241E] mb-4 uppercase tracking-tight">{item.name}</h4>
                   <button
-                    onClick={() => addToCart(item)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(item);
+                    }}
                     className="mt-auto w-full bg-[#FFFBFA] border border-[#D99A5B] text-[#D99A5B] py-3 flex items-center justify-center gap-2 font-bold uppercase text-xs tracking-widest hover:bg-[#D99A5B] hover:text-white transition-all"
                   >
                     <Plus size={16} /> Add to Box
