@@ -98,7 +98,7 @@ export async function registerUser(formData: FormData) {
     console.log(`✅ User registered successfully. OTP code: ${code}`);
 
   } catch (error) {
-    console.error("❌ Registration error:", error);
+    console.error("Registration error:", error);
     return { error: "Registration failed. Please try again." };
   }
 
