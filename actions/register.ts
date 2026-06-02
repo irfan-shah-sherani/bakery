@@ -77,11 +77,10 @@ export async function registerUser(formData: FormData) {
       });
     });
 
-    // Send verification email
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     try {
-      await fetch(`${baseUrl}/api/send`, {
+      await fetch(`${baseUrl}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -95,7 +94,7 @@ export async function registerUser(formData: FormData) {
       console.warn("⚠️ Email sending failed, but account created:", emailError);
     }
 
-    console.log(`✅ User registered successfully. OTP code: ${code}`);
+    console.log(` User registered successfully. OTP code: ${code}`);
 
   } catch (error) {
     console.error("Registration error:", error);

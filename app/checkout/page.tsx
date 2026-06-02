@@ -183,7 +183,7 @@ export default function CheckoutPage() {
                 .join("");
 
             // Send confirmation email
-            const emailResponse = await fetch("/api/send", {
+            const emailResponse = await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -201,6 +201,29 @@ export default function CheckoutPage() {
                     },
                 }),
             });
+
+            const message = `Your order #${result.orderId} has been confirmed! Total: $${total.toFixed(2)}. Thank you for ordering from UniBakery!`;
+
+            try {
+                const response = await fetch("/api/send-sms", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ recipient: orderData.phone, message: message }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    console.warn("SMS sending failed:", data.error);
+                } else {    
+                    console.log("SMS sent successfully, SID:", data.sid);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+
 
             if (!emailResponse.ok) {
                 console.warn("Email sending failed, but order was created");
