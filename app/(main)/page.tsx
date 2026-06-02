@@ -18,9 +18,9 @@ export default async function Home() {
       <HeroCarousel />
       <About />
       <Services />
-      <Offer />
+      {/* <Offer /> */}
       <Menu initialItems={menuItems} />
-      <Reservation />
+      {/* <Reservation /> */}
       <Testimonials />
       <Footer />
     </main>

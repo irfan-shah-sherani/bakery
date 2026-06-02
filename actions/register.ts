@@ -5,18 +5,18 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { randomInt } from "crypto";
 
-export async function registerUser(formData: FormData) { 
+export async function registerUser(formData: FormData) {
 
   console.log("Received registration data:", {
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password") ? "Provided" : "Not provided"
   });
-     
+
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
- 
+
   if (!email || !password || !name) {
     return { error: "Missing required fields" };
   }
@@ -47,12 +47,26 @@ export async function registerUser(formData: FormData) {
       });
     });
 
-    console.log(`Verification code for ${email}: ${code}`); 
-    
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+    await fetch(`${baseUrl}/api/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: email,
+        subject: 'Verify Your Email - Bakery App',
+        type: 'otp',
+        payload: { code }
+      })
+    });
+
+    console.log(`Verification code for ${email}: ${code}`);
+
   } catch (error) {
     console.error("Registration error:", error);
     return { error: "Something went wrong. Please try again." };
-  } 
+  }
 
   redirect(`/otp?email=${encodeURIComponent(email)}`);
 }

@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": 2,
+    "name": "aserf",
+    "price": 21,
+    "category": "pastries",
+    "img": "/uploads/1780388751751-792640291.jpg",
+    "createdAt": "2026-06-02T08:25:51.768Z",
+    "updatedAt": "2026-06-02T08:25:51.768Z"
+  }
+]

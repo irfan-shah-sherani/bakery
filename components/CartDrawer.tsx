@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { X, Trash2, Plus, Minus, ShoppingBasket } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   isOpen: boolean;
@@ -124,9 +125,11 @@ export default function CartDrawer({ isOpen, onClose, cart, setCart }: Props) {
             <span className="text-3xl font-black text-[#D99A5B]">${totalPrice.toFixed(2)}</span>
           </div>
 
-          <button className="w-full bg-[#2D241E] text-white font-bold py-5 rounded-xl uppercase tracking-[0.2em] text-xs hover:bg-[#D99A5B] transition-all duration-500 shadow-xl active:scale-[0.98]">
-            Complete My Order
-          </button>
+          <Link href={`/checkout?cart=${encodeURIComponent(JSON.stringify(cart))}`}>
+            <button className="w-full bg-[#2D241E] text-white font-bold py-5 rounded-xl uppercase tracking-[0.2em] text-xs hover:bg-[#D99A5B] transition-all duration-500 shadow-xl active:scale-[0.98]">
+              Complete My Order
+            </button>
+          </Link>
 
           <p className="text-center text-[10px] text-[#7A6D63] mt-4 uppercase tracking-widest font-bold opacity-60">
             Secure Artisan Checkout
