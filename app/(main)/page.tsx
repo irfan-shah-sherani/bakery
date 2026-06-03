@@ -1,7 +1,6 @@
 import HeroCarousel from "@/components/HeroCarousel";
 import About from "@/components/About";
 import Services from "@/components/Services";
-import Offer from "@/components/Offer";
 import Menu from "@/components/Menu";
 import Reservation from "@/components/Reservation";
 import Testimonials from "@/components/Testimonials";
@@ -18,7 +17,6 @@ export default async function Home() {
       <HeroCarousel />
       <About />
       <Services />
-      {/* <Offer /> */}
       <Menu initialItems={menuItems} />
       {/* <Reservation /> */}
       <Testimonials />
