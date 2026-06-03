@@ -69,7 +69,7 @@ export default function Contact() {
       <section className="relative min-h-screen bg-[#FFF8ED] py-4 px-4 md:px-10 ">
 
 
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-4xl mx-auto relative z-10">
          
           {/* Contact Form */}
           <div className="max-w-2xl mx-auto">

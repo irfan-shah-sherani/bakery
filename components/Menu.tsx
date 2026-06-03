@@ -61,7 +61,7 @@ export default function EnhancedBakeryMenu({ initialItems = [] }: { initialItems
       <div className="flex flex-col items-center text-center mb-12">
         <div className="w-[1px] h-12 bg-[#D99A5B] mb-4" />
         <h2 className="text-4xl md:text-5xl font-black text-[#2D241E] mb-8 uppercase tracking-tighter">
-          Artisan Bakery Menu
+        Bakery Menu
         </h2>
 
         <div className="flex flex-wrap justify-center gap-3 max-w-5xl">

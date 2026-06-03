@@ -75,7 +75,7 @@ export default function CheckoutPage() {
     };
 
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-    const tax = subtotal * 0.1;
+    const tax = subtotal * 0.02;
     const total = subtotal + tax;
 
     // Validation utilities
@@ -405,7 +405,7 @@ export default function CheckoutPage() {
                                     <span className="font-bold">${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-300">Tax (10%)</span>
+                                    <span className="text-gray-300">Tax (2%)</span>
                                     <span className="font-bold">${tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-xl border-t border-white/10 pt-4 mt-4">
@@ -429,6 +429,6 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </div>
-        </section>
+        </section> 
     );
 }

@@ -9,7 +9,7 @@ export default async function MenuPage() {
   const items = await getJsonBakeryMenu();
 
   return (
-    <div className="pt-16">
+    <div>
       <EnhancedBakeryMenu initialItems={items} />
     </div>
   );

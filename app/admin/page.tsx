@@ -97,64 +97,71 @@ export default function AdminMenuPage() {
   };
 
   if (loading || status === "loading" || adminEmail === undefined) {
-    return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center font-bold text-center p-4 tracking-widest text-sm md:text-base">
-        LOADING STORE INVENTORY...
-      </div>
-    );
-  }
+  return (
+    <div className="min-h-screen bg-[#1E1B18] text-neutral-400 flex items-center justify-center font-medium tracking-widest text-xs uppercase animate-pulse">
+      Loading store inventory...
+    </div>
+  );
+}
 
-  if (status === "unauthenticated") {
-    return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
-        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
-          <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
-          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Access Denied</h1>
-          <p className="text-sm text-neutral-400 mb-6">You must be logged in to access the admin panel.</p>
-          <Link href="/login" className="inline-block w-full sm:w-auto bg-[#D99A5B] text-neutral-900 font-black py-3 px-8 rounded uppercase text-xs tracking-widest hover:bg-amber-500 transition-colors">
-            Login Now
+if (!adminEmail) {
+  return (
+    <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-6">
+      <div className="max-w-sm w-full text-center space-y-4">
+        <AlertCircle size={32} className="mx-auto text-amber-500 opacity-80" />
+        <h1 className="text-lg font-bold tracking-tight">Configuration Required</h1>
+        <p className="text-sm text-neutral-400 leading-relaxed">
+          Please add <code className="bg-neutral-900 px-1.5 py-0.5 rounded text-amber-400 font-mono text-xs">NEXT_PUBLIC_ADMIN_EMAIL</code> to your environment variables.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const userEmail = (session?.user as any)?.email;
+
+// Combined Access Guard: Not logged in OR logged in with the wrong email
+if (status === "unauthenticated" || userEmail !== adminEmail) {
+  const isWrongEmail = status === "authenticated" && userEmail !== adminEmail;
+
+  return (
+    <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-6">
+      <div className="bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 rounded-xl p-8 max-w-sm w-full text-center shadow-2xl">
+        <AlertCircle size={36} className="mx-auto text-red-400/90 mb-3" />
+        
+        <h1 className="text-xl font-bold tracking-tight text-neutral-100 mb-2">
+          {isWrongEmail ? "Admin Access Only" : "Authentication Required"}
+        </h1>
+        
+        <p className="text-sm text-neutral-400 mb-6 px-2">
+          {isWrongEmail ? (
+            <>
+              Compiled access denied for <span className="text-neutral-200 font-medium break-all">{userEmail}</span>. Please sign in with an authorized administrator account.
+            </>
+          ) : (
+            "You must be logged in as an administrator to access the dashboard inventory management."
+          )}
+        </p>
+
+        <div className="flex flex-col gap-2">
+          <Link 
+            href="/login" 
+            className="w-full bg-[#D99A5B] text-neutral-950 font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider hover:bg-[#c4894e] transition-colors text-center"
+          >
+            {isWrongEmail ? "Sign in with different account" : "Login Now"}
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!adminEmail) {
-    return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
-        <div className="bg-neutral-900 border border-yellow-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
-          <AlertCircle size={48} className="mx-auto text-yellow-400 mb-4" />
-          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Admin Not Configured</h1>
-          <p className="text-sm text-neutral-400 mb-6">The admin email has not been set up yet. Please add <code className="bg-neutral-800 px-2 py-1 rounded text-[#D99A5B]">NEXT_PUBLIC_ADMIN_EMAIL</code> to your .env file.</p>
-          <div className="bg-neutral-800 rounded p-4 text-left text-sm mb-6 border border-neutral-700 overflow-x-auto">
-            <p className="text-neutral-300 mb-2 whitespace-nowrap">Example .env setup:</p>
-            <code className="text-[#D99A5B] font-mono text-xs whitespace-nowrap">NEXT_PUBLIC_ADMIN_EMAIL=your-email@example.com</code>
-          </div>
-          <Link href="/" className="inline-block w-full sm:w-auto bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
+          
+          <Link 
+            href="/" 
+            className="w-full bg-neutral-850 text-neutral-400 font-medium py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider hover:text-neutral-200 transition-colors text-center"
+          >
             Back Home
           </Link>
         </div>
       </div>
-    );
-  }
-
-  const userEmail = (session?.user as any)?.email;
-  if (userEmail !== adminEmail) {
-    return (
-      <div className="min-h-screen bg-[#1E1B18] text-white flex items-center justify-center p-4">
-        <div className="bg-neutral-900 border border-red-500/30 rounded-lg p-6 md:p-10 max-w-md w-full text-center shadow-xl">
-          <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
-          <h1 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider mb-2">Unauthorized</h1>
-          <p className="text-sm text-neutral-400 mb-2">Your email: <span className="text-yellow-400 font-bold break-all">{userEmail}</span></p>
-          <p className="text-sm text-neutral-400 mb-6">You are not authorized to access the admin panel.</p>
-          <Link href="/" className="inline-block w-full sm:w-auto bg-neutral-700 text-white font-bold py-2 px-6 rounded uppercase text-xs tracking-widest hover:bg-neutral-600 transition-colors">
-            Back Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+    </div>
+  );
+}
   return (
     <div className="min-h-screen bg-[#1E1B18] text-neutral-100 p-4 sm:p-8 md:p-12 lg:p-24 pt-24 md:pt-28">
       <div className="max-w-6xl mx-auto">

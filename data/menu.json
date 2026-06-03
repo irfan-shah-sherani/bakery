@@ -1,11 +1,47 @@
 [
   {
     "id": 2,
-    "name": "aserf",
-    "price": 21,
-    "category": "pastries",
-    "img": "/uploads/1780388751751-792640291.jpg",
-    "createdAt": "2026-06-02T08:25:51.768Z",
-    "updatedAt": "2026-06-02T08:25:51.768Z"
+    "name": "dawn",
+    "price": 12,
+    "category": "bread",
+    "img": "/uploads/1780463794512-2574665.png",
+    "createdAt": "2026-06-03T05:16:34.538Z",
+    "updatedAt": "2026-06-03T05:16:34.538Z"
+  },
+  {
+    "id": 3,
+    "name": "Rye",
+    "price": 3,
+    "category": "bread",
+    "img": "/uploads/1780463855522-437349328.png",
+    "createdAt": "2026-06-03T05:17:35.530Z",
+    "updatedAt": "2026-06-03T05:17:35.530Z"
+  },
+  {
+    "id": 4,
+    "name": "chocolate cake",
+    "price": 5,
+    "category": "cakes",
+    "img": "/uploads/1780463902382-908473555.png",
+    "createdAt": "2026-06-03T05:18:22.390Z",
+    "updatedAt": "2026-06-03T05:18:22.390Z"
+  },
+  {
+    "id": 5,
+    "name": "Biscuit",
+    "price": 2,
+    "category": "cookies",
+    "img": "/uploads/1780463932409-897769974.png",
+    "createdAt": "2026-06-03T05:18:52.424Z",
+    "updatedAt": "2026-06-03T05:18:52.424Z"
+  },
+  {
+    "id": 6,
+    "name": "paer",
+    "price": 5,
+    "category": "tarts",
+    "img": "/uploads/1780463950241-127997181.png",
+    "createdAt": "2026-06-03T05:19:10.255Z",
+    "updatedAt": "2026-06-03T05:19:10.255Z"
   }
 ]
