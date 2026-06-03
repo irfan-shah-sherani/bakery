@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react"; // Added Suspense import
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, MapPin, User, Mail, Phone, ShoppingBag } from "lucide-react";
@@ -25,7 +25,8 @@ interface OrderData {
     address: string;
 }
 
-export default function CheckoutPage() {
+// 1. Move your main checkout UI logic into a separate inner component
+function CheckoutContent() {
     const searchParams = useSearchParams();
     const { data: session } = useSession();
     const [cart, setCart] = useState<CartItem[]>([]);
@@ -98,47 +99,22 @@ export default function CheckoutPage() {
     };
 
     const handleConfirmOrder = async () => {
-        // Validate name
-        if (!orderData.name) {
-            alert("❌ Please enter your full name");
-            return;
-        }
-        if (!validateName(orderData.name)) {
+        if (!orderData.name || !validateName(orderData.name)) {
             alert("❌ Name must be 2-100 characters");
             return;
         }
-
-        // Validate email
-        if (!orderData.email) {
-            alert("❌ Please enter your email");
-            return;
-        }
-        if (!validateEmail(orderData.email)) {
+        if (!orderData.email || !validateEmail(orderData.email)) {
             alert("❌ Please enter a valid email address");
             return;
         }
-
-        // Validate phone
-        if (!orderData.phone) {
-            alert("❌ Please enter your phone number");
-            return;
-        }
-        if (!validatePhone(orderData.phone)) {
+        if (!orderData.phone || !validatePhone(orderData.phone)) {
             alert("❌ Please enter a valid phone number (at least 10 digits)");
             return;
         }
-
-        // Validate address
-        if (!orderData.address) {
-            alert("❌ Please enter your delivery address");
-            return;
-        }
-        if (!validateAddress(orderData.address)) {
+        if (!orderData.address || !validateAddress(orderData.address)) {
             alert("❌ Address must be 10-500 characters");
             return;
         }
-
-        // Validate cart
         if (cart.length === 0) {
             alert("❌ Your cart is empty");
             return;
@@ -153,13 +129,8 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
 
         try {
-            // First, create the order
             const result = await createOrder(
-                {
-                    ...orderData,
-                    items: cart,
-                    total,
-                },
+                { ...orderData, items: cart, total },
                 session as any
             );
 
@@ -169,7 +140,6 @@ export default function CheckoutPage() {
                 return;
             }
 
-            // Format items for email
             const itemsHtml = cart
                 .map(
                     (item) => `
@@ -177,13 +147,11 @@ export default function CheckoutPage() {
                   <td style="padding: 12px; text-align: left;">${item.name}</td>
                   <td style="padding: 12px; text-align: center;">x${item.qty}</td>
                   <td style="padding: 12px; text-align: right;">$${(item.price * item.qty).toFixed(2)}</td>
-                </tr>
-              `
+                </tr>`
                 )
                 .join("");
 
-            // Send confirmation email
-            const emailResponse = await fetch("/api/send-email", {
+            await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -205,28 +173,13 @@ export default function CheckoutPage() {
             const message = `Your order #${result.orderId} has been confirmed! Total: $${total.toFixed(2)}. Thank you for ordering from UniBakery!`;
 
             try {
-                const response = await fetch("/api/send-sms", {
+                await fetch("/api/send-sms", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ recipient: orderData.phone, message: message }),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ recipient: orderData.phone, message }),
                 });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    console.warn("SMS sending failed:", data.error);
-                } else {    
-                    console.log("SMS sent successfully, SID:", data.sid);
-                }
             } catch (error) {
-                console.error("Fetch error:", error);
-            }
-
-
-            if (!emailResponse.ok) {
-                console.warn("Email sending failed, but order was created");
+                console.error("SMS Error:", error);
             }
 
             alert("Order placed successfully! Check your email for confirmation.");
@@ -241,14 +194,12 @@ export default function CheckoutPage() {
 
     if (isLoading) {
         return (
-            <section className="relative min-h-screen bg-[#FFF8ED] py-24 px-4 md:px-10 overflow-hidden flex items-center justify-center">
-                <div className="text-center">
-                    <div className="inline-block animate-spin">
-                        <ShoppingBag size={48} className="text-[#D99A5B]" />
-                    </div>
-                    <p className="text-[#2D241E] mt-4 font-bold">Loading checkout...</p>
+            <div className="text-center min-h-screen flex flex-col items-center justify-center bg-[#FFF8ED]">
+                <div className="inline-block animate-spin">
+                    <ShoppingBag size={48} className="text-[#D99A5B]" />
                 </div>
-            </section>
+                <p className="text-[#2D241E] mt-4 font-bold">Loading checkout...</p>
+            </div>
         );
     }
 
@@ -275,102 +226,47 @@ export default function CheckoutPage() {
             <OverlayBottom />
 
             <div className="max-w-6xl mx-auto relative z-10">
-                {/* Header */}
                 <div className="flex items-center gap-4 mb-12">
-                    <Link
-                        href="/"
-                        className="flex items-center gap-2 text-[#2D241E] font-bold uppercase text-xs tracking-widest hover:text-[#D99A5B] transition-colors"
-                    >
-                        <ChevronLeft size={16} />
-                        Back
+                    <Link href="/" className="flex items-center gap-2 text-[#2D241E] font-bold uppercase text-xs tracking-widest hover:text-[#D99A5B] transition-colors">
+                        <ChevronLeft size={16} /> Back
                     </Link>
-                    <h1 className="text-3xl md:text-5xl font-black text-[#2D241E] uppercase tracking-tighter">
-                        Order Checkout
-                    </h1>
+                    <h1 className="text-3xl md:text-5xl font-black text-[#2D241E] uppercase tracking-tighter">Order Checkout</h1>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    {/* Left: User Details & Address */}
                     <div className="lg:col-span-2 space-y-8">
-                        {/* User Information Section */}
                         <div className="bg-white p-8 shadow-lg rounded-xl border border-[#D99A5B]/10">
                             <div className="flex items-center gap-3 mb-6">
                                 <User size={24} className="text-[#D99A5B]" />
                                 <h2 className="text-2xl font-black text-[#2D241E] uppercase tracking-tighter">Your Details</h2>
                             </div>
-
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Full Name */}
                                 <div>
-                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">
-                                        Full Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={orderData.name}
-                                        onChange={handleInputChange}
-                                        placeholder="John Doe"
-                                        className="w-full px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none focus:ring-2 focus:ring-[#D99A5B]/20 transition-colors bg-[#FFFBFA]"
-                                    />
+                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">Full Name *</label>
+                                    <input type="text" name="name" value={orderData.name} onChange={handleInputChange} placeholder="irfan" className="w-full  text-black px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none bg-[#FFFBFA]" />
                                 </div>
-
-                                {/* Email */}
                                 <div>
-                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">
-                                        Email Address *
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={orderData.email}
-                                        onChange={handleInputChange}
-                                        placeholder="john@example.com"
-                                        className="w-full px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none focus:ring-2 focus:ring-[#D99A5B]/20 transition-colors bg-[#FFFBFA]"
-                                    />
+                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">Email Address *</label>
+                                    <input type="email" name="email" value={orderData.email} onChange={handleInputChange} placeholder="john@example.com" className="w-full text-black px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none bg-[#FFFBFA]" />
                                 </div>
-
-                                {/* Phone */}
                                 <div className="md:col-span-2">
-                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">
-                                        <Phone size={14} className="inline mr-2" />
-                                        Phone Number *
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={orderData.phone}
-                                        onChange={handleInputChange}
-                                        placeholder="+1 (555) 123-4567"
-                                        className="w-full px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none focus:ring-2 focus:ring-[#D99A5B]/20 transition-colors bg-[#FFFBFA]"
-                                    />
+                                    <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2"><Phone size={14} className="inline mr-2" />Phone Number *</label>
+                                    <input type="tel" name="phone" value={orderData.phone} onChange={handleInputChange} placeholder="+1 (555) 123-4567" className="w-full text-black px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none bg-[#FFFBFA]" />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Address Section */}
                         <div className="bg-white p-8 shadow-lg rounded-xl border border-[#D99A5B]/10">
                             <div className="flex items-center gap-3 mb-6">
                                 <MapPin size={24} className="text-[#D99A5B]" />
                                 <h2 className="text-2xl font-black text-[#2D241E] uppercase tracking-tighter">Delivery Address</h2>
                             </div>
-
                             <div>
-                                <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">
-                                    Full Address *
-                                </label>
-                                <textarea
-                                    name="address"
-                                    value={orderData.address}
-                                    onChange={handleInputChange}
-                                    placeholder="123 Main Street, Apartment 4B, City, State, ZIP Code"
-                                    rows={4}
-                                    className="w-full px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none focus:ring-2 focus:ring-[#D99A5B]/20 transition-colors resize-none bg-[#FFFBFA]"
-                                />
+                                <label className="block text-xs font-bold uppercase text-[#7A6D63] tracking-widest mb-2">Full Address *</label>
+                                <textarea name="address" value={orderData.address} onChange={handleInputChange} placeholder="123 Main Street..." rows={4} className="w-full text-black px-4 py-3 border border-[#D99A5B]/20 rounded-lg focus:border-[#D99A5B] focus:outline-none resize-none bg-[#FFFBFA]" />
                             </div>
                         </div>
 
-                        {/* Order Items */}
                         <div className="bg-white p-8 shadow-lg rounded-xl border border-[#D99A5B]/10">
                             <h2 className="text-2xl font-black text-[#2D241E] uppercase tracking-tighter mb-6">Order Items</h2>
                             <div className="space-y-4">
@@ -392,13 +288,9 @@ export default function CheckoutPage() {
                         </div>
                     </div>
 
-                    {/* Right: Order Summary */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-24 bg-[#2D241E] text-white p-8 rounded-xl shadow-2xl">
-                            <h3 className="text-xl font-black uppercase tracking-widest mb-8 border-b border-white/10 pb-4">
-                                Order Summary
-                            </h3>
-
+                            <h3 className="text-xl font-black uppercase tracking-widest mb-8 border-b border-white/10 pb-4">Order Summary</h3>
                             <div className="space-y-4 text-sm mb-8">
                                 <div className="flex justify-between">
                                     <span className="text-gray-300">Subtotal</span>
@@ -413,22 +305,29 @@ export default function CheckoutPage() {
                                     <span className="font-black text-[#D99A5B]">${total.toFixed(2)}</span>
                                 </div>
                             </div>
-
-                            <button
-                                onClick={handleConfirmOrder}
-                                disabled={isSubmitting}
-                                className="w-full bg-[#D99A5B] text-[#2D241E] font-black py-4 rounded-lg uppercase tracking-[0.2em] text-xs hover:bg-white transition-all duration-500 shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
+                            <button onClick={handleConfirmOrder} disabled={isSubmitting} className="w-full bg-[#D99A5B] text-[#2D241E] font-black py-4 rounded-lg uppercase tracking-[0.2em] text-xs hover:bg-white transition-all duration-500 disabled:opacity-50">
                                 {isSubmitting ? "Processing..." : "Confirm Order"}
                             </button>
-
-                            <p className="text-center text-[10px] text-gray-400 mt-6 uppercase tracking-widest font-bold">
-                                ✓ Secure & Encrypted Checkout
-                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-        </section> 
+        </section>
+    );
+}
+
+// 2. The main page component wraps the content with Suspense
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={
+            <div className="text-center min-h-screen flex flex-col items-center justify-center bg-[#FFF8ED]">
+                <div className="inline-block animate-spin">
+                    <ShoppingBag size={48} className="text-[#D99A5B]" />
+                </div>
+                <p className="text-[#2D241E] mt-4 font-bold">Loading setup...</p>
+            </div>
+        }>
+            <CheckoutContent />
+        </Suspense>
     );
 }
