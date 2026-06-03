@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       return Response.json({ error: error.message || 'Failed to send email' }, { status: 500 });
     }
 
-    console.log('✅ Email sent successfully to:', to);
+    console.log(' Email sent successfully to:', to);
     return Response.json({ success: true, data });
   } catch (error: any) {
     return Response.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

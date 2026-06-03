@@ -74,7 +74,7 @@ export async function sendContactMessage(payload: ContactPayload) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        to: process.env.VERIFIED_SENDER_EMAIL || "mrirfankhansherani@gmail.com",
+        to: process.env.VERIFIED_SENDER_EMAIL ,
         subject: `New Contact Message: ${payload.subject}`,
         type: "contact",
         payload: {
